@@ -11,6 +11,6 @@
   
     <node pkg="pcd_convert" exec="pcd_height_segmentation"/>
 
-    <node pkg="sign_detection" exec="sign_detection2" output="screen"/>
+    <!-- <node pkg="sign_detection" exec="sign_detection2" output="screen"/> -->
 
 </launch>

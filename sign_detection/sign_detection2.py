@@ -8,21 +8,20 @@ from std_msgs.msg import Header
 from sklearn.cluster import DBSCAN
 import numpy as np
 import open3d as o3d
+from ament_index_python.packages import get_package_share_directory
+import os
 
 class SingRec2(Node):
     def __init__(self):
         super().__init__("sign_detection2")
 
-        # self.sub = self.create_subscription(
-        #     PointCloud2, 'converted_pointcloud2', self.sr_call_back, 10
-        # )
-
-        # This is for running on the robot
+        package_share_directory = get_package_share_directory('sign_detection')
+        pcd_path = os.path.join(package_share_directory, 'template_pcd', 'temp2.pcd')
+        self.template_cloud = o3d.io.read_point_cloud(pcd_path)
+        
         self.sub = self.create_subscription(
             PointCloud2, 'pcd_segment_obs', self.sr_call_back, 10
         )
-
-        self.count = 0
         self.pub = self.create_publisher(PointCloud2, 'filtered_pointcloud2', 10)
 
     def sr_call_back(self, msg):
@@ -34,13 +33,7 @@ class SingRec2(Node):
         # Filter points by distance
         filtered_points = self.filter_points_by_distance(point_cloud_data, min_distance=0.5, max_distance=4)
 
-        template_cloud = o3d.io.read_point_cloud("temp2.pcd")
-        self.perform_clustering_and_icp_matching(filtered_points, template_cloud)
-
-        # Perform clustering on the filtered points
-        # clusters = self.perform_clustering_and_icp_matching(filtered_points, template_cloud)
-
-        # self.shape_filter(clusters)
+        self.perform_clustering_and_icp_matching(filtered_points, self.template_cloud)
 
         # Create and publish the filtered PointCloud2 message
         header = Header()
@@ -111,41 +104,9 @@ class SingRec2(Node):
             # Check the matching fitness
             fitness = icp_result.fitness
             if fitness > 0.5:  # Example threshold for a match
-                self.get_logger().info('##### Match!######')
+                # self.get_logger().info('##### Match!######')
                 self.get_logger().info(f'{fitness}')
             self.get_logger().info(f'{fitness}')
-
-
-    def shape_filter(self, points):
-        # pass
-        jugement1 = False
-        jugement2 = False
-        self.count += 1
-        self.get_logger().info(f'Frame {self.count} #####')
-        for point in points:
-            x, y, z, intensity = point
-            for poi in points:
-                poi_x, poi_y, poi_z, poi_intensity = poi
-                if z + 0.4 <= poi_z <= z + 0.6:
-                    jugement1 = True
-                    # self.get_logger().info('j1 is True')
-                if x + 0.05 <= poi_x <= x + 0.1:
-                    jugement2 = True
-                    # self.get_logger().info('j2 is True')
-
-            if(jugement1 and jugement2):
-                self.get_logger().info('##### Match!######')
-            
-            jugement1 = False
-            jugement2 = False
-        # arr = []
-        # for point in points:
-        #     (x, y, z, intensity) = point
-        #     arr.append((x, y, z, intensity))
-        # arr_np = np.array(arr)
-        # y_ave = np.mean(arr_np,axis=0)[1]
-        # self.get_logger().info(f'average : {y_ave}') 
-
 
 
 def main(args=None):

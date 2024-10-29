@@ -14,6 +14,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.xml')),
         (os.path.join('share', package_name, "rviz2"), glob('rviz2/*')),
+        (os.path.join('share', package_name, "template_pcd"), glob('template_pcd/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -26,6 +27,7 @@ setup(
         'console_scripts': [
             'sign_detection = sign_detection.sign_detection:main',
             'sign_detection2 = sign_detection.sign_detection2:main',
+            'read_temp = sign_detection.read_temp:main',
         ],
     },
 )
