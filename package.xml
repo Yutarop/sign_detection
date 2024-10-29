@@ -8,7 +8,7 @@
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
-  <exec_depend>rviz2</xec_depend>
+  <exec_depend>rviz2</exec_depend>
   <exec_depend>livox</exec_depend>
   <exec_depend>pcd_convert</exec_depend>
 
