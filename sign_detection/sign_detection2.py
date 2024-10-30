@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 import math
 import rclpy
+import numpy as np
+import open3d as o3d
+import os
 from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2, PointField
 from sensor_msgs_py import point_cloud2  
 from std_msgs.msg import Header
 from sklearn.cluster import DBSCAN
-import numpy as np
-import open3d as o3d
 from ament_index_python.packages import get_package_share_directory
-import os
+
 
 class SingRec2(Node):
     def __init__(self):
@@ -33,7 +34,7 @@ class SingRec2(Node):
         # Filter points by distance
         filtered_points = self.filter_points_by_distance(point_cloud_data, min_distance=0.5, max_distance=4)
 
-        self.perform_clustering_and_icp_matching(filtered_points, self.template_cloud)
+        self.perform_clustering_and_icp_matching(filtered_points)
 
         # Create and publish the filtered PointCloud2 message
         header = Header()
@@ -68,7 +69,7 @@ class SingRec2(Node):
 
         return filtered_points
 
-    def perform_clustering_and_icp_matching(self, points, template_cloud, eps=0.5, min_samples=5, threshold=0.02):
+    def perform_clustering_and_icp_matching(self, points, eps=0.2, min_samples=9, threshold=0.02):
         # Convert point cloud data to numpy array
         points_np = np.array([(x, y, z) for x, y, z, intensity in points])
         if points_np.size == 0:
@@ -79,13 +80,14 @@ class SingRec2(Node):
         labels = clustering.labels_
 
         # No need to re-assign points if template_cloud is already in PointCloud format
-        if isinstance(template_cloud, o3d.geometry.PointCloud):
-            template_cloud_o3d = template_cloud  # Use directly if already a PointCloud
+        if isinstance(self.template_cloud, o3d.geometry.PointCloud):
+            template_cloud_o3d = self.template_cloud  # Use directly if already a PointCloud
         else:
             template_cloud_o3d = o3d.geometry.PointCloud()
-            template_cloud_o3d.points = o3d.utility.Vector3dVector(template_cloud)
+            template_cloud_o3d.points = o3d.utility.Vector3dVector(self.template_cloud)
 
         matched_clusters = []
+        # self.get_logger().info(f'{len(set(labels))}')
         for cluster_id in set(labels):
             if cluster_id == -1:
                 continue  # Skip noise points
@@ -105,8 +107,8 @@ class SingRec2(Node):
             fitness = icp_result.fitness
             if fitness > 0.5:  # Example threshold for a match
                 # self.get_logger().info('##### Match!######')
-                self.get_logger().info(f'{fitness}')
-            self.get_logger().info(f'{fitness}')
+                self.get_logger().info(f'fitness: {fitness}')
+            self.get_logger().info(f'fitness: {fitness}')
 
 
 def main(args=None):

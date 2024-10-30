@@ -13,13 +13,13 @@ class ReadTemp(Node): # MODIFY NAME
         pcd_path = os.path.join(package_share_directory, 'template_pcd', 'temp2.pcd')
         template_cloud = o3d.io.read_point_cloud(pcd_path)
         self.get_logger().info(f'{template_cloud}')
+
  
 def main(args=None):
     rclpy.init(args=args)
     node = ReadTemp() # MODIFY NAME
     rclpy.spin(node)
     rclpy.shutdown()
- 
  
 if __name__ == "__main__":
     main()
