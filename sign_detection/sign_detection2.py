@@ -17,7 +17,7 @@ class SingRec2(Node):
         super().__init__("sign_detection2")
 
         package_share_directory = get_package_share_directory('sign_detection')
-        pcd_path = os.path.join(package_share_directory, 'template_pcd', 'temp2.pcd')
+        pcd_path = os.path.join(package_share_directory, 'template_pcd', 'temp3.pcd')
         self.template_cloud = o3d.io.read_point_cloud(pcd_path)
         
         self.sub = self.create_subscription(
@@ -61,7 +61,6 @@ class SingRec2(Node):
         for point in points:
             x, y, z, intensity = point
             distance = math.sqrt(x**2 + y**2)  # Calculate the 2D Euclidean distance
-
             if min_distance <= distance:
                 if distance <= max_distance:
                     if intensity >= 100:
@@ -69,7 +68,7 @@ class SingRec2(Node):
 
         return filtered_points
 
-    def perform_clustering_and_icp_matching(self, points, eps=0.2, min_samples=9, threshold=0.02):
+    def perform_clustering_and_icp_matching(self, points, eps=0.6, min_samples=4, threshold=0.02):
         # Convert point cloud data to numpy array
         points_np = np.array([(x, y, z) for x, y, z, intensity in points])
         if points_np.size == 0:
@@ -105,10 +104,10 @@ class SingRec2(Node):
 
             # Check the matching fitness
             fitness = icp_result.fitness
-            if fitness > 0.5:  # Example threshold for a match
+            if fitness > 0:  # Example threshold for a match
                 # self.get_logger().info('##### Match!######')
                 self.get_logger().info(f'fitness: {fitness}')
-            self.get_logger().info(f'fitness: {fitness}')
+            # self.get_logger().info(f'fitness: {fitness}')
 
 
 def main(args=None):
