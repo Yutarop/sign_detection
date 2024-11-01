@@ -19,7 +19,7 @@ class SingRec2(Node):
 
         package_share_directory = get_package_share_directory('sign_detection')
 
-        pcd_path = os.path.join(package_share_directory, 'template_pcd', 'yutaro1_bag_edit.pcd')
+        pcd_path = os.path.join(package_share_directory, 'template_pcd', 'bag1_edit.pcd')
         self.template_cloud = o3d.io.read_point_cloud(pcd_path)
         self.template_centroid = functions.compute_centroid(self.template_cloud)
 
