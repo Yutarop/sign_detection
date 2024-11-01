@@ -4,6 +4,7 @@ import rclpy
 import numpy as np
 import open3d as o3d
 import os
+from sign_detection import functions
 from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2, PointField
 from sensor_msgs_py import point_cloud2  
@@ -17,13 +18,16 @@ class SingRec2(Node):
         super().__init__("sign_detection2")
 
         package_share_directory = get_package_share_directory('sign_detection')
-        pcd_path = os.path.join(package_share_directory, 'template_pcd', 'temp3.pcd')
+
+        pcd_path = os.path.join(package_share_directory, 'template_pcd', 'yutaro1_bag_edit.pcd')
         self.template_cloud = o3d.io.read_point_cloud(pcd_path)
-        
+        self.template_centroid = functions.compute_centroid(self.template_cloud)
+
         self.sub = self.create_subscription(
             PointCloud2, 'pcd_segment_obs', self.sr_call_back, 10
         )
         self.pub = self.create_publisher(PointCloud2, 'filtered_pointcloud2', 10)
+    
 
     def sr_call_back(self, msg):
         # Unpack the PointCloud2 message to get x, y, z, and intensity
@@ -60,10 +64,10 @@ class SingRec2(Node):
 
         for point in points:
             x, y, z, intensity = point
-            distance = math.sqrt(x**2 + y**2)  # Calculate the 2D Euclidean distance
+            distance = math.sqrt(x**2 + y**2)
             if min_distance <= distance:
                 if distance <= max_distance:
-                    if intensity >= 100:
+                    if intensity >= 130:
                         filtered_points.append((x, y, z, intensity))
 
         return filtered_points
@@ -85,8 +89,6 @@ class SingRec2(Node):
             template_cloud_o3d = o3d.geometry.PointCloud()
             template_cloud_o3d.points = o3d.utility.Vector3dVector(self.template_cloud)
 
-        matched_clusters = []
-        # self.get_logger().info(f'{len(set(labels))}')
         for cluster_id in set(labels):
             if cluster_id == -1:
                 continue  # Skip noise points
@@ -95,19 +97,30 @@ class SingRec2(Node):
             cluster_points = points_np[labels == cluster_id]
             cluster_cloud = o3d.geometry.PointCloud()
             cluster_cloud.points = o3d.utility.Vector3dVector(cluster_points)
+            cluster_centroid = functions.compute_centroid(cluster_cloud)
+
+            # Calculate the rotation matrix
+            rotation_matrix = functions.compute_rotation_matrix(self.template_centroid, cluster_centroid)
+
+            # Rotate the template point cloud
+            functions.rotate_point_cloud(self.template_cloud , rotation_matrix)
+
+            # Calculate the translation vector
+            translation = cluster_centroid - functions.compute_centroid(self.template_cloud)
+
+            # Translate the template point cloud
+            functions.translate_point_cloud(self.template_cloud, translation)
 
             # Apply ICP
-            icp_result = o3d.pipelines.registration.registration_icp(
-                cluster_cloud, template_cloud_o3d, threshold,
-                estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPoint()
-            )
+            reg_icp = functions.apply_icp(self.template_cloud, cluster_cloud)
+
+            # Apply the final transformation matrix from ICP
+            self.template_cloud.transform(reg_icp.transformation)
 
             # Check the matching fitness
-            fitness = icp_result.fitness
-            if fitness > 0:  # Example threshold for a match
-                # self.get_logger().info('##### Match!######')
+            fitness = reg_icp.fitness
+            if fitness > 0.25:
                 self.get_logger().info(f'fitness: {fitness}')
-            # self.get_logger().info(f'fitness: {fitness}')
 
 
 def main(args=None):
