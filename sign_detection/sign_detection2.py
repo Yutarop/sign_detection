@@ -14,8 +14,9 @@ from ament_index_python.packages import get_package_share_directory
 
 
 class SingRec2(Node):
-    def __init__(self):
+    def __init__(self, detection_queue):
         super().__init__("sign_detection2")
+        self.detection_queue = detection_queue
 
         package_share_directory = get_package_share_directory('sign_detection')
 
@@ -121,14 +122,13 @@ class SingRec2(Node):
             fitness = reg_icp.fitness
             if fitness > 0.25:
                 self.get_logger().info(f'fitness: {fitness}')
+                self.detection_queue.put("Detected")
+            else:
+                self.detection_queue.put("Waiting...")
 
 
-def main(args=None):
+def main(args=None, detection_queue=None):
     rclpy.init(args=args)
-    node = SingRec2()
+    node = SingRec2(detection_queue)
     rclpy.spin(node)
     rclpy.shutdown()
-
-
-if __name__ == "__main__":
-    main()
