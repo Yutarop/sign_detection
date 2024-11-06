@@ -1,5 +1,5 @@
 hyperparameter/
-pcd_converter/
+pcd2_converter/
 sign_detection/functions_fpfh.py
 sign_detection/sign_detection_fpfh.py
 
