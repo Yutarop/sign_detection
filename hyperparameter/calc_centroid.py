@@ -39,7 +39,7 @@ def compute_rotation_matrix(source_centroid, target_centroid):
 
 # ICPを適用する関数
 def apply_icp(source, target):
-    threshold = 0.02  # 対応点の最大距離
+    threshold = 0.1  # 対応点の最大距離 0.02
     reg_icp = o3d.pipelines.registration.registration_icp(
         source, target, threshold,
         np.eye(4),  # 初期変換行列
@@ -52,14 +52,14 @@ def main(template_file, clustered_file):
     template_pcd = load_point_cloud(template_file)
     clustered_pcd = load_point_cloud(clustered_file)
 
-    # 重心の計算
+    # # 重心の計算
     template_centroid = compute_centroid(template_pcd)
     clustered_centroid = compute_centroid(clustered_pcd)
 
-    # 回転行列の計算
+    # # 回転行列の計算
     rotation_matrix = compute_rotation_matrix(template_centroid, clustered_centroid)
 
-    # テンプレート点群を回転
+    # # テンプレート点群を回転
     rotate_point_cloud(template_pcd, rotation_matrix)
 
     # 平行移動ベクトルの計算
@@ -80,7 +80,7 @@ def main(template_file, clustered_file):
 
     # 色を設定（テンプレートは青、クラスタは赤）
     template_pcd.paint_uniform_color([0, 0, 1])  # 青色
-    clustered_pcd.paint_uniform_color([1, 0, 0])  # 赤色
+    clustered_pcd.paint_uniform_color([0, 1, 0])  # 赤色
 
     # 結果の表示
     o3d.visualization.draw_geometries([template_pcd, clustered_pcd],
@@ -90,7 +90,7 @@ def main(template_file, clustered_file):
 if __name__ == "__main__":
     # テンプレート点群とクラスタリングした点群のファイルパスを指定
     package_share_directory = get_package_share_directory('sign_detection')
-    template_file_path = os.path.join(package_share_directory, 'template_pcd', 'ppp_280_edit.pcd')
-    clustered_file_path = os.path.join(package_share_directory, 'template_pcd', 'yutaro3_bag_edit.pcd')
+    template_file_path = os.path.join(package_share_directory, 'template_pcd', 'ponta1.pcd')
+    clustered_file_path = os.path.join(package_share_directory, 'template_pcd', 'yutaro1_bag_edit.pcd')
 
     main(template_file_path, clustered_file_path)

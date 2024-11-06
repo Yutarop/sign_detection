@@ -26,9 +26,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'sign_detection = sign_detection.sign_detection:main',
+            # 'sign_detection = sign_detection.sign_detection:main',
             'sign_detection2 = sign_detection.sign_detection2:main',
-            'read_temp = sign_detection.read_temp:main',
         ],
     },
 )

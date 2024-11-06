@@ -32,7 +32,7 @@ def compute_rotation_matrix(source_centroid, target_centroid):
 
 # Function to apply ICP
 def apply_icp(source, target):
-    threshold = 0.02  # Maximum distance for corresponding points
+    threshold = 0.05  # Maximum distance for corresponding points 0.02
     reg_icp = o3d.pipelines.registration.registration_icp(
         source, target, threshold,
         np.eye(4),  # Initial transformation matrix

@@ -14,8 +14,9 @@ from ament_index_python.packages import get_package_share_directory
 
 
 class SingRec2(Node):
-    def __init__(self):
+    def __init__(self, detection_queue):
         super().__init__("sign_detection2")
+        self.detection_queue = detection_queue
 
         package_share_directory = get_package_share_directory('sign_detection')
 
@@ -72,7 +73,7 @@ class SingRec2(Node):
 
         return filtered_points
 
-    def perform_clustering_and_icp_matching(self, points, eps=0.6, min_samples=4, threshold=0.02):
+    def perform_clustering_and_icp_matching(self, points, eps=0.7, min_samples=3, threshold=0.02):
         # Convert point cloud data to numpy array
         points_np = np.array([(x, y, z) for x, y, z, intensity in points])
         if points_np.size == 0:
@@ -119,16 +120,15 @@ class SingRec2(Node):
 
             # Check the matching fitness
             fitness = reg_icp.fitness
-            if fitness > 0.25:
+            if fitness > 0.9:
                 self.get_logger().info(f'fitness: {fitness}')
+                self.detection_queue.put("Detected")
+            else:
+                self.detection_queue.put("Waiting...")
 
 
-def main(args=None):
+def main(args=None, detection_queue=None):
     rclpy.init(args=args)
-    node = SingRec2()
+    node = SingRec2(detection_queue)
     rclpy.spin(node)
     rclpy.shutdown()
-
-
-if __name__ == "__main__":
-    main()
