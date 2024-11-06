@@ -15,7 +15,6 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.xml')),
         (os.path.join('share', package_name, "rviz2"), glob('rviz2/*')),
         (os.path.join('share', package_name, "template_pcd"), glob('template_pcd/*')),
-        (os.path.join('share', package_name, "hyperparameter"), glob('hyperparameter/pcd_bag/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

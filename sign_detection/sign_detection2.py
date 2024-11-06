@@ -18,17 +18,19 @@ class SingRec2(Node):
         super().__init__("sign_detection2")
         self.detection_queue = detection_queue
 
+        # Read template pcd file
         package_share_directory = get_package_share_directory('sign_detection')
 
+        # Add your template pcd file to 'template_pcd' and change the name here
         pcd_path = os.path.join(package_share_directory, 'template_pcd', 'bag1_edit.pcd')
         self.template_cloud = o3d.io.read_point_cloud(pcd_path)
         self.template_centroid = functions.compute_centroid(self.template_cloud)
 
+        # Subscribe PointCloud2 messages. Change the topic name to your topic name.
         self.sub = self.create_subscription(
             PointCloud2, 'pcd_segment_obs', self.sr_call_back, 10
         )
-        self.pub = self.create_publisher(PointCloud2, 'filtered_pointcloud2', 10)
-    
+
 
     def sr_call_back(self, msg):
         # Unpack the PointCloud2 message to get x, y, z, and intensity
@@ -36,31 +38,14 @@ class SingRec2(Node):
             msg, field_names=("x", "y", "z", "intensity"), skip_nans=True
         )
 
-        # Filter points by distance
-        filtered_points = self.filter_points_by_distance(point_cloud_data, min_distance=0.5, max_distance=4)
+        # Filter points by distance. Only cloud points between 0.5 m and 4.0m are extracted.
+        filtered_points = self.filter_points_by_distance(point_cloud_data, min_distance=0.5, max_distance=4, intensity_threshold=130)
 
+        # Perform clustering and icp matching
         self.perform_clustering_and_icp_matching(filtered_points)
 
-        # Create and publish the filtered PointCloud2 message
-        header = Header()
-        header.stamp = self.get_clock().now().to_msg()
-        header.frame_id = msg.header.frame_id
 
-        # Define the fields
-        fields = [
-            PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
-            PointField(name='y', offset=4, datatype=PointField.FLOAT32, count=1),
-            PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
-            PointField(name='intensity', offset=12, datatype=PointField.FLOAT32, count=1)
-        ]
-
-        # Create the PointCloud2 message
-        filtered_pointcloud_msg = point_cloud2.create_cloud(header, fields, filtered_points)
-
-        # Publish the filtered message
-        self.pub.publish(filtered_pointcloud_msg)
-
-    def filter_points_by_distance(self, points, min_distance, max_distance):
+    def filter_points_by_distance(self, points, min_distance, max_distance, intensity_threshold):
         filtered_points = []
 
         for point in points:
@@ -68,7 +53,7 @@ class SingRec2(Node):
             distance = math.sqrt(x**2 + y**2)
             if min_distance <= distance:
                 if distance <= max_distance:
-                    if intensity >= 130:
+                    if intensity >= intensity_threshold:
                         filtered_points.append((x, y, z, intensity))
 
         return filtered_points
