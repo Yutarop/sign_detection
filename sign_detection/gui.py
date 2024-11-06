@@ -19,7 +19,7 @@ class SignDetectionGUI:
         try:
             message = self.detection_queue.get_nowait()
             if message == "Detected":
-                self.detection_label.config(text="Detected!", foreground='#ff0000')
+                self.detection_label.config(text="Detected!", foreground='#0a0a0a')
         except:
             pass
         self.root.after(100, self.check_queue)
