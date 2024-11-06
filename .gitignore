@@ -1,4 +1,5 @@
-/hyperparameter/pcd_bag/*.pcd
+/hyperparameter/
+/pcd_converter/
 
 devel/
 logs/
