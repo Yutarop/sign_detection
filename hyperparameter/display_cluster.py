@@ -5,7 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 import os
 
 package_share_directory = get_package_share_directory('sign_detection')
-pcd_path = os.path.join(package_share_directory, 'hyperparameter', 'ppp_100.pcd')
+pcd_path = os.path.join(package_share_directory, 'hyperparameter', 'new1.pcd')
 pcd = o3d.io.read_point_cloud(pcd_path)
 points = np.asarray(pcd.points)
 
