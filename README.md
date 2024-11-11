@@ -6,7 +6,9 @@ This is a package for detecting road closed signs for Task C in the Tsukuba Chal
 ```bash
 $ cd ~/{ROS2_WORKSPACE}/src
 $ git clone -b release/humble https://github.com/Yutarop/sign_detection.git
+$ pip install -r requirements.txt
 $ cd ~/{ROS2_WORKSPACE} && $ colcon build
+$ source ~/.bashrc
 ```
 
 ## Run
