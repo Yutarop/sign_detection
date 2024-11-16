@@ -37,7 +37,7 @@ class SingRec2(Node):
         )
 
         # Filter points by distance
-        filtered_points = self.filter_points_by_distance(point_cloud_data, min_distance=0.5, max_distance=4)
+        filtered_points = self.filter_points_by_distance(point_cloud_data, min_distance=0.5, max_distance=4, min_angle=10, max_angle=170)
 
         self.perform_clustering_and_icp_matching(filtered_points)
 
@@ -60,20 +60,21 @@ class SingRec2(Node):
         # Publish the filtered message
         self.pub.publish(filtered_pointcloud_msg)
 
-    def filter_points_by_distance(self, points, min_distance, max_distance):
+    def filter_points_by_distance(self, points, min_distance, max_distance, min_angle, max_angle):
         filtered_points = []
 
         for point in points:
             x, y, z, intensity = point
             distance = math.sqrt(x**2 + y**2)
-            if min_distance <= distance:
-                if distance <= max_distance:
-                    if intensity >= 130:
-                        filtered_points.append((x, y, z, intensity))
+            angle = math.degrees(math.atan2(x, y))
+            if min_distance <= distance <= max_distance:
+                if min_angle <= angle <= max_angle:
+                    # if intensity >= 130:
+                    filtered_points.append((x, y, z, intensity))
 
         return filtered_points
 
-    def perform_clustering_and_icp_matching(self, points, eps=0.7, min_samples=3, threshold=0.02):
+    def perform_clustering_and_icp_matching(self, points, eps=0.7, min_samples=3):
         # Convert point cloud data to numpy array
         points_np = np.array([(x, y, z) for x, y, z, intensity in points])
         if points_np.size == 0:
