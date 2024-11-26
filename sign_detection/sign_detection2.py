@@ -69,8 +69,8 @@ class SingRec2(Node):
             angle = math.degrees(math.atan2(x, y))
             if min_distance <= distance <= max_distance:
                 if min_angle <= angle <= max_angle:
-                    # if intensity >= 130:
-                    filtered_points.append((x, y, z, intensity))
+                    if intensity >= 130:
+                        filtered_points.append((x, y, z, intensity))
 
         return filtered_points
 
