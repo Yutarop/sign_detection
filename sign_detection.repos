@@ -1,0 +1,9 @@
+repositories:
+  porizou/livox_to_pointcloud2:
+    type: git
+    url: https://github.com/porizou/livox_to_pointcloud2.git
+    version: main
+  KBKN-Autonomous-Robotics-Lab/pcd_convert:
+    type: git
+    url: https://github.com/KBKN-Autonomous-Robotics-Lab/pcd_convert.git
+    version: main
