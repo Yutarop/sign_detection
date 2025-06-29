@@ -55,11 +55,18 @@ ros2 run sign_detection sign_detection
 ```
 
 ## bagファイルで実験
+#### 依存リポジトリのクローン
+```bash
+cd ~/ros2_ws
+vcs import src < sign_detection.repos
+```
+
 #### bagファイルの実行
 ```bash
 cd ~/ros2_ws/src/sign_detection/bag
 ros2 bag play example.bag
 ```
+
 #### launchファイルの実行
 ```bash
 ros2 launch sign_detection sign_detec.launch.xml
