@@ -1,13 +1,9 @@
 <?xml version="1.0"?>
 <launch>
-    <let name="config_file_path" value="$(find-pkg-share sign_detection)/rviz2/sing_rec.rviz" />
-    <node pkg="rviz2" exec="rviz2" args="-d $(var config_file_path)"  />
-
-    <arg name="livox_pointcloud_topic" default="/livox/lidar"/>
-
-    <node pkg="livox_to_pointcloud2" exec="livox_to_pointcloud2_node" args="--ros-args -r /livox_pointcloud:=$(var livox_pointcloud_topic)"/>
-
-    <node pkg="pcd_convert" exec="pcd_rotation" />
-  
-    <node pkg="pcd_convert" exec="pcd_height_segmentation"/>
+  <let name="config_file_path" value="$(find-pkg-share sign_detection)/rviz2/sing_rec.rviz"/>
+  <node pkg="rviz2" exec="rviz2" args="-d $(var config_file_path)"/>
+  <arg name="livox_pointcloud_topic" default="/livox/lidar"/>
+  <node pkg="livox_to_pointcloud2" exec="livox_to_pointcloud2_node" args="--ros-args -r /livox_pointcloud:=$(var livox_pointcloud_topic)"/>
+  <node pkg="pcd_convert" exec="pcd_rotation"/>
+  <node pkg="pcd_convert" exec="pcd_height_segmentation"/>
 </launch>

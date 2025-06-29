@@ -16,6 +16,7 @@ from sign_detection import functions
 
 TOPIC_IN_NAME = "pcd_segment_obs"
 
+
 class SingRec2(Node):
     def __init__(self):
         super().__init__("sign_detection")
