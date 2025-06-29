@@ -14,7 +14,17 @@ from std_msgs.msg import Header
 
 from sign_detection import functions
 
+# Constants
 TOPIC_IN_NAME = "pcd_segment_obs"
+TOPIC_OUT_NAME = "filtered_pointcloud2"
+MIN_DISTANCE = 0.5
+MAX_DISTANCE = 4.0
+MIN_ANGLE = 10.0
+MAX_ANGLE = 170.0
+MIN_INTENSITY = 130.0
+DBSCAN_EPS = 0.7
+DBSCAN_MIN_SAMPLES = 3
+FITNESS_THRESHOLD = 0.8
 
 
 class SingRec2(Node):
@@ -32,7 +42,7 @@ class SingRec2(Node):
         self.sub = self.create_subscription(
             PointCloud2, TOPIC_IN_NAME, self.sr_call_back, 10
         )
-        self.pub = self.create_publisher(PointCloud2, "filtered_pointcloud2", 10)
+        self.pub = self.create_publisher(PointCloud2, TOPIC_OUT_NAME, 10)
 
     def sr_call_back(self, msg):
         # Unpack the PointCloud2 message to get x, y, z, and intensity
@@ -40,14 +50,8 @@ class SingRec2(Node):
             msg, field_names=("x", "y", "z", "intensity"), skip_nans=True
         )
 
-        # Filter points by distance
-        filtered_points = self.filter_points_by_distance(
-            point_cloud_data,
-            min_distance=0.5,
-            max_distance=4,
-            min_angle=10,
-            max_angle=170,
-        )
+        # Filter points by distance and angle
+        filtered_points = self.filter_points_by_distance(point_cloud_data)
 
         self.perform_clustering_and_icp_matching(filtered_points)
 
@@ -56,7 +60,6 @@ class SingRec2(Node):
         header.stamp = self.get_clock().now().to_msg()
         header.frame_id = msg.header.frame_id
 
-        # Define the fields
         fields = [
             PointField(name="x", offset=0, datatype=PointField.FLOAT32, count=1),
             PointField(name="y", offset=4, datatype=PointField.FLOAT32, count=1),
@@ -66,45 +69,39 @@ class SingRec2(Node):
             ),
         ]
 
-        # Create the PointCloud2 message
         filtered_pointcloud_msg = point_cloud2.create_cloud(
             header, fields, filtered_points
         )
 
-        # Publish the filtered message
         self.pub.publish(filtered_pointcloud_msg)
 
-    def filter_points_by_distance(
-        self, points, min_distance, max_distance, min_angle, max_angle
-    ):
+    def filter_points_by_distance(self, points):
         filtered_points = []
 
         for point in points:
             x, y, z, intensity = point
             distance = math.sqrt(x**2 + y**2)
             angle = math.degrees(math.atan2(x, y))
-            if min_distance <= distance <= max_distance:
-                if min_angle <= angle <= max_angle:
-                    if intensity >= 130:
+            if MIN_DISTANCE <= distance <= MAX_DISTANCE:
+                if MIN_ANGLE <= angle <= MAX_ANGLE:
+                    if intensity >= MIN_INTENSITY:
                         filtered_points.append((x, y, z, intensity))
 
         return filtered_points
 
-    def perform_clustering_and_icp_matching(self, points, eps=0.7, min_samples=3):
+    def perform_clustering_and_icp_matching(self, points):
         # Convert point cloud data to numpy array
         points_np = np.array([(x, y, z) for x, y, z, intensity in points])
         if points_np.size == 0:
             return []
 
         # Perform clustering with DBSCAN
-        clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(points_np)
+        clustering = DBSCAN(eps=DBSCAN_EPS, min_samples=DBSCAN_MIN_SAMPLES).fit(points_np)
         labels = clustering.labels_
 
-        # No need to re-assign points if template_cloud is already in PointCloud format
+        # Check if template_cloud is already in PointCloud format
         if isinstance(self.template_cloud, o3d.geometry.PointCloud):
-            template_cloud_o3d = (
-                self.template_cloud
-            )  # Use directly if already a PointCloud
+            template_cloud_o3d = self.template_cloud
         else:
             template_cloud_o3d = o3d.geometry.PointCloud()
             template_cloud_o3d.points = o3d.utility.Vector3dVector(self.template_cloud)
@@ -147,7 +144,7 @@ class SingRec2(Node):
             # If you want to display fitness score, then uncomment below
             # self.get_logger().info(f'fitness: {fitness}')
 
-            if fitness > 0.8:
+            if fitness > FITNESS_THRESHOLD:
                 self.get_logger().info(f'{"="*25} Detected! {"="*25}')
 
 
@@ -156,3 +153,7 @@ def main(args=None):
     node = SingRec2()
     rclpy.spin(node)
     rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()
