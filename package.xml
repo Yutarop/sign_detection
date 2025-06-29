@@ -3,9 +3,9 @@
 <package format="3">
   <name>sign_detection</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="ubuntu@todo.todo">ubuntu</maintainer>
-  <license>TODO: License declaration</license>
+  <description>ROS2 package for detecting road-closed signs, designed for Task C of the Tsukuba Challenge.</description>
+  <maintainer email="yutarop.storm.7@gmail.com">yutarop</maintainer>
+  <license>MIT</license>
 
   <depend>rclpy</depend>
   <depend>sensor_msgs</depend>
@@ -22,7 +22,6 @@
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
 
-  <!-- Dependencies for running Python scripts -->
   <exec_depend>python3</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-matplotlib</exec_depend>
