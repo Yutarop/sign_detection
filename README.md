@@ -1,4 +1,5 @@
 ![ROS2-humble Industrial CI](https://github.com/Yutarop/sign_detection/actions/workflows/ros2_ci.yml/badge.svg)
+[README in English](https://github.com/Yutarop/sign_detection/blob/main/README-en.md)
 # つくばチャレンジ2024 選択課題C    
 つくばチャレンジ選択課題Cで使用される経路封鎖看板を検出するアルゴリズムのROS2パッケージです。このアルゴリズムは、3D LiDARから得られるポイントクラウドデータと反射強度のデータのみを使用します。まず、入力される`PointCloud2`メッセージを処理し、距離と角度に基づいてポイントをフィルタリングします。その後、DBSCANを使用してクラスタリングを行い、初期位置合わせとICPアルゴリズムを用いて、テンプレートポイントクラウドとクラスタをマッチングします。
 
