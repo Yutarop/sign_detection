@@ -1,6 +1,12 @@
 ![ROS2-humble Industrial CI](https://github.com/Yutarop/sign_detection/actions/workflows/ros2_ci.yml/badge.svg)
-# Tsukuba Challenge 2024 Task C
-This is a ROS2 package for detecting path-blocking signs used in the Tsukuba Challenge 2024 Optional Task C. The algorithm processes point cloud data and intensity information from a 3D LiDAR sensor. It first filters points in PointCloud2 messages based on distance and angle, then performs clustering using DBSCAN, and matches clusters with a template point cloud using initial alignment and the ICP algorithm.
+# Route Blockage Sign Detection Algorithm
+This is a ROS2 package for detecting route blockage signs. The algorithm processes point cloud data and intensity information from a 3D LiDAR sensor. It first filters points in PointCloud2 messages based on distance and angle, then performs clustering using DBSCAN, and matches clusters with a template point cloud using initial alignment and the ICP algorithm.
+
+## Demo
+<div style="text-align: center;">
+    <img src="https://github.com/user-attachments/assets/95c935a2-76e0-4582-9b0e-5b23f0aa2df9" alt="example">
+</div>
+
 
 ## Features
 * Subscribes to PointCloud2 messages from the pcd_segment_obs topic.
@@ -80,8 +86,5 @@ ros2 launch sign_detection sign_detec.launch.xml
 ros2 run sign_detection sign_detection
 ```
 
-## Demo
-<div style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/95c935a2-76e0-4582-9b0e-5b23f0aa2df9" alt="example">
-</div>
+
     
